@@ -1,0 +1,23 @@
+package templates
+
+import "web-mmo/modules/templates/base"
+import "web-mmo/modules/templates/ui"
+
+templ Base(page templ.Component,path string){
+    <!DOCTYPE html>
+    <html lang="en">
+    @base.Head()
+    <body class="flex flex-col items-center font-mono">
+        <div class="bg-green-300">
+            <h1>Welcome to the world of Grunlah</h1>
+        </div>
+        <div>
+            @ui.Menu(path)
+        </div>
+        <div class="bg-black h-[2px] w-full" ></div>
+        <div id="page" class="flex flex-col items-center w-full">
+            @page
+        </div>
+    </body>
+    </html>
+}

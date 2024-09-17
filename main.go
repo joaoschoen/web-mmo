@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"web-mmo/modules/api/router"
-	"web-mmo/modules/utils/renderer"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -13,8 +12,6 @@ func main() {
 	// Init API
 	e := echo.New()
 
-	// Rendering
-	e.Renderer = renderer.Renderer()
 	e.Static("/css", "static/css")
 
 	router.InitRoutes(e)

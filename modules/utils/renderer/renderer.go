@@ -1,23 +1,17 @@
 package renderer
 
 import (
-	"io"
-	"text/template"
-
+	"github.com/a-h/templ"
 	"github.com/labstack/echo/v4"
 )
 
-type Templates struct {
-	templates *template.Template
-}
+func Render(ctx echo.Context, statusCode int, t templ.Component) error {
+	buf := templ.GetBuffer()
+	defer templ.ReleaseBuffer(buf)
 
-func (t *Templates) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
-	println(t.templates.DefinedTemplates())
-	return t.templates.ExecuteTemplate(w, name, data)
-}
-
-func Renderer() *Templates {
-	return &Templates{
-		templates: template.Must(template.ParseGlob("modules/templates/**/*.html")),
+	if err := t.Render(ctx.Request().Context(), buf); err != nil {
+		return err
 	}
+
+	return ctx.HTML(statusCode, buf.String())
 }

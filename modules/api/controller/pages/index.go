@@ -1,10 +1,29 @@
 package pages
 
 import (
+	"net/http"
+	"web-mmo/modules/templates"
+	"web-mmo/modules/utils/renderer"
+
 	"github.com/labstack/echo/v4"
 )
 
-func Index(c echo.Context) error {
-	// BODY
-	return c.Render(200, "index", nil)
+type Page struct {
+	Template string
+}
+
+func Hero(c echo.Context) error {
+	return renderer.Render(c, http.StatusOK, templates.Base(templates.Hero(), c.Path()))
+}
+
+func World(c echo.Context) error {
+	return renderer.Render(c, http.StatusOK, templates.Base(templates.World(), c.Path()))
+}
+
+func Town(c echo.Context) error {
+	return renderer.Render(c, http.StatusOK, templates.Base(templates.Town(), c.Path()))
+}
+
+func Dungeon(c echo.Context) error {
+	return renderer.Render(c, http.StatusOK, templates.Base(templates.Dungeon(), c.Path()))
 }

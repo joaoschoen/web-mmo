@@ -1,0 +1,10 @@
+package ui
+
+templ Menu(path string){
+    <nav class="flex w-full m-2 gap-10">
+        @MenuItem(path,templ.SafeURL("/world"),"World Map")
+        @MenuItem(path,templ.SafeURL("/hero"),"Hero")
+        @MenuItem(path,templ.SafeURL("/town"),"Town")
+        @MenuItem(path,templ.SafeURL("/dungeon"),"Dungeon")
+    </nav>
+}

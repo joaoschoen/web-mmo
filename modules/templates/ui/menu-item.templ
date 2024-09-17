@@ -1,0 +1,9 @@
+package ui
+
+templ MenuItem(path string, href templ.SafeURL, text string){
+    if path == string(href) {
+        <a class="underline text-green-700" href={href}>{text}</a>
+    } else {
+        <a class="underline" href={href}>{text}</a>
+    }
+}
