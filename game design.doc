@@ -1,0 +1,36 @@
+This is going to be a browser based mmo
+
+The client will be built using htmx, being served using golang with echo
+
+
+Mechanics
+
+town, travel, dungeon crawling
+
+technology required: 
+
+procedural generation for terrain and poi(structures, towns, etc)
+
+dungeons have tiers that dictate what monsters can spawn in them
+
+professions:
+
+    merchant:
+        cannot go into dungeons, can set up shop and buy/sell items
+
+    hunter:
+        can hunt beasts and harvest resources
+
+    adventurer:
+        can go into dungeons, must buy gear from merchants
+
+    craftsman:
+        can produce items from resources
+
+monster types:
+
+    beast
+    tier 1: deer
+    tier 2: boar
+    tier 3: wolf
+    tier 4: bear
