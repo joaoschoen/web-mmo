@@ -7,7 +7,7 @@ type LoginCredentials struct {
 }
 
 type UserData struct {
-	ID       string `json:"id"`
+	Username string `json:"username"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }

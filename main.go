@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"web-mmo/modules/api/router"
+	"web-mmo/modules/utils/db"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -15,6 +17,14 @@ func main() {
 	e.Static("/css", "static/css")
 
 	router.InitRoutes(e)
+
+	// Database config
+	// Initialize the DB connection pool
+	if err := db.InitDB(); err != nil {
+		log.Fatalf("Failed to initialize database connection: %v", err)
+	}
+
+	go db.CheckDBConnection()
 
 	// Middleware stack
 	e.Use(middleware.CORS())

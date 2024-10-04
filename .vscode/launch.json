@@ -1,0 +1,21 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+          "name": "Launch Go Application",
+          "type": "go",
+          "request": "launch",
+          "mode": "debug",
+          "program": "${workspaceFolder}",  // The entry point to your Go application (main package)
+          "args": ["--check-go-version=false"],                        // Command-line arguments if needed
+          "env": {},                         // Environment variables (optional)
+          "buildFlags": "",                  // Any additional Go build flags
+          "showLog": true,                   // To show logs in the Debug Console
+          "cwd": "${workspaceFolder}",       // The working directory
+        //   "dlvToolPath": "${workspaceFolder}/bin/dlv"  // Optional: path to delve debugger if not in PATH
+        }
+      ]
+}
