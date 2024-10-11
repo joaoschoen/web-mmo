@@ -18,15 +18,14 @@ const conn_string string = "postgres://admin:admin@localhost:5432/web-mmo?sslmod
 func InitDB() error {
 	var err error
 	dbConn, err = sql.Open("postgres", conn_string)
-	dbConn.SetMaxOpenConns(20)
 
 	if err != nil {
-		log.Printf("Failed to connect to the database: %v", err.Error())
 		return err
 	}
+	dbConn.SetMaxOpenConns(20)
 
-	if dbConn.Ping() != nil {
-		log.Printf("Failed to connect to the database: %v", err.Error())
+	if err := dbConn.Ping(); err != nil {
+		return err
 	}
 
 	log.Println("Database connection established")
@@ -36,9 +35,19 @@ func InitDB() error {
 func CheckDBConnection() {
 	for {
 		ctx := context.Background()
+		var err error
+		if dbConn == nil {
+			err := recreateDBPool()
+			if err != nil {
+				log.Printf("Unable to acquire connection: %v", err)
+				time.Sleep(30 * time.Second) // Check every 30 seconds
+				continue
+			}
+		}
 		conn, err := dbConn.Conn(ctx)
 		if err != nil {
 			log.Printf("Unable to acquire connection: %v", err)
+			time.Sleep(30 * time.Second) // Check every 30 seconds
 			continue
 		}
 
@@ -47,7 +56,12 @@ func CheckDBConnection() {
 		if err != nil {
 			log.Printf("Database ping failed: %v", err)
 			// Recreate the connection pool
-			recreateDBPool()
+			err := recreateDBPool()
+			if err != nil {
+				log.Printf("Unable to acquire connection: %v", err)
+				time.Sleep(30 * time.Second) // Check every 30 seconds
+				continue
+			}
 		} else {
 			log.Println("Database connection is healthy")
 		}
@@ -59,11 +73,11 @@ func GetConnection(ctx context.Context) (*sql.Conn, error) {
 	return dbConn.Conn(ctx)
 }
 
-func recreateDBPool() {
+func recreateDBPool() error {
 	// Close the existing pool if it exists
 	if dbConn != nil {
 		dbConn.Close()
 	}
 
-	InitDB() // Reinitialize the connection pool
+	return InitDB() // Reinitialize the connection pool
 }

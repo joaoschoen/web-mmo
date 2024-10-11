@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"web-mmo/modules/api/router"
 	"web-mmo/modules/utils/db"
 
@@ -19,11 +18,7 @@ func main() {
 	router.InitRoutes(e)
 
 	// Database config
-	// Initialize the DB connection pool
-	if err := db.InitDB(); err != nil {
-		log.Fatalf("Failed to initialize database connection: %v", err)
-	}
-
+	// Init job to connect to db
 	go db.CheckDBConnection()
 
 	// Middleware stack
