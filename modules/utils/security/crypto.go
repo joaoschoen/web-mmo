@@ -16,3 +16,7 @@ func Decrypt(hash []byte, password string) error {
 	err := bcrypt.CompareHashAndPassword(hash, []byte(password))
 	return err
 }
+
+func CompareHashAndPassword(hash []byte, password []byte) error {
+	return bcrypt.CompareHashAndPassword(hash, password)
+}

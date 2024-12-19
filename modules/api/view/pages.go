@@ -8,7 +8,7 @@ import (
 
 func PagesRouter(server *echo.Echo) {
 	group := server.Group("/")
-	group.GET("", pages.World)
+	group.GET("", pages.Login)
 	group.GET("world", pages.World)
 	group.GET("hero", pages.Hero)
 	group.GET("town", pages.Town)

@@ -2,7 +2,7 @@ package security
 
 import "regexp"
 
-func CheckPassword(password string) bool {
+func SafetyRulesCheck(password string) bool {
 	/*
 		Rules:
 		Because of Bcrypt:

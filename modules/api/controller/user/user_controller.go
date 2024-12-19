@@ -4,9 +4,10 @@ import (
 	"net/http"
 	"time"
 	"web-mmo/modules/api/model"
-	"web-mmo/modules/utils/db"
+	"web-mmo/modules/utils/database"
 	"web-mmo/modules/utils/security"
 
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/gommon/log"
 )
@@ -19,7 +20,7 @@ var DummyUser = model.UserData{
 }
 
 func Register(ctx echo.Context) error {
-	println("starting")
+	req_ctx := ctx.Request().Context()
 	// BODY
 	var user model.UserData
 	err := ctx.Bind(&user)
@@ -32,26 +33,27 @@ func Register(ctx echo.Context) error {
 	}
 
 	// Database connection
-	conn, err := db.GetConnection(ctx.Request().Context())
+	conn, err := database.GetConnection(req_ctx)
+	defer conn.Close()
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, "Service currently unavailable")
 	}
-	defer conn.Close()
 
 	// Duplicate check
 	// Username
-	rows, err := conn.QueryContext(ctx.Request().Context(), "SELECT username FROM \"user\" WHERE username = $1;", user.Username)
+	rows, err := conn.QueryContext(req_ctx, "SELECT username FROM \"user\" WHERE username = $1;", user.Username)
+	defer rows.Close()
+
 	if err != nil {
 		log.Errorf(err.Error())
 		return ctx.JSON(http.StatusInternalServerError, nil)
 	}
-	defer rows.Close()
 	if rows.Next() == true {
 		return ctx.JSON(http.StatusBadRequest, "The selected username is already in use.")
 	}
 
 	// Email
-	rows, err = conn.QueryContext(ctx.Request().Context(), "SELECT email FROM \"user\" WHERE email = $1;", user.Email)
+	rows, err = conn.QueryContext(req_ctx, "SELECT email FROM \"user\" WHERE email = $1;", user.Email)
 	defer rows.Close()
 	if err != nil {
 		log.Errorf(err.Error())
@@ -62,23 +64,20 @@ func Register(ctx echo.Context) error {
 	}
 
 	// Password minimum requirements
-	if security.CheckPassword(user.Password) == false {
+	if security.SafetyRulesCheck(user.Password) == false {
 		return ctx.JSON(http.StatusBadRequest, "The provided password does not satisfy security standards.")
 	}
 
 	// Hashing
 	hashedPassword, err := security.Encrypt(user.Password)
 	if err != nil {
-		println(err.Error())
 		return ctx.JSON(http.StatusInternalServerError, nil)
 	}
-
 	// Create User
-	_, err = conn.ExecContext(ctx.Request().Context(), `
+	_, err = conn.ExecContext(req_ctx, `
 		INSERT INTO "user" (username,email,password,created_at)
 		VALUES ($1,$2,$3,$4);`, user.Username, user.Email, string(hashedPassword), time.Now())
 	if err != nil {
-		println(err.Error())
 		return ctx.JSON(http.StatusInternalServerError, nil)
 	}
 
@@ -86,27 +85,57 @@ func Register(ctx echo.Context) error {
 }
 
 func Login(ctx echo.Context) error {
+	req_ctx := ctx.Request().Context()
 	// BODY
-	var user model.LoginCredentials
-	err := ctx.Bind(&user)
+	var form_data model.LoginCredentials
+	err := ctx.Bind(&form_data)
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, "Malformed data")
 	}
+
 	// Empty data
-	if user.Email == "" || user.Password == "" {
+	if form_data.Email == "" || form_data.Password == "" {
 		return ctx.JSON(http.StatusBadRequest, "Bad credentials")
 	}
 
-	// DATABASE REQUEST GOES HERE
-
-	// CHECK DUPLICATE
-	if user.Email == "alreadyIn@use.com" {
-		return ctx.JSON(http.StatusUnprocessableEntity, "Email already in use")
+	// Database connection
+	conn, err := database.GetConnection(req_ctx)
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, "Service currently unavailable")
 	}
-	// TODO
-	// return token
+	defer conn.Close()
 
-	return ctx.JSON(http.StatusOK, nil)
+	// Fetch user data
+	rows, err := conn.QueryContext(req_ctx, "SELECT id,email,password FROM \"user\" WHERE email = $1;", form_data.Email)
+	defer rows.Close()
+	if err != nil {
+		log.Errorf(err.Error())
+		return ctx.JSON(http.StatusInternalServerError, nil)
+	}
+	if rows.Next() == false {
+		return ctx.JSON(http.StatusBadRequest, "No user account was found with this email and password combination.")
+	}
+	var user_data model.UserData
+	rows.Scan(&user_data.Id, &user_data.Email, &user_data.Password)
+
+	// Authenticate
+	err = security.CompareHashAndPassword([]byte(user_data.Password), []byte(form_data.Password))
+	if err != nil {
+		return ctx.JSON(http.StatusBadRequest, "No user account was found with this email and password combination.")
+	}
+
+	// Session and token
+	session_id := uuid.New().String()
+	token, err := security.GenerateToken(user_data, session_id)
+	if err != nil {
+		println(err.Error())
+		return ctx.JSON(http.StatusInternalServerError, nil)
+	}
+	// Store session
+	// redis := database.RedisConnect()
+	// redis.Set(req_ctx, session_id, user_data)
+
+	return ctx.String(http.StatusOK, token)
 }
 
 // func PutUser(ctx echo.Context) error {

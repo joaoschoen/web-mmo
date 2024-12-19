@@ -2,16 +2,30 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"os"
 	"web-mmo/modules/api/router"
-	"web-mmo/modules/utils/db"
+	"web-mmo/modules/utils/database"
+	"web-mmo/modules/utils/environment"
 
+	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
 
 func main() {
-	// Init API
+	// Instantiate API
 	e := echo.New()
+
+	// Environment config
+	if err := godotenv.Load(".env"); err != nil {
+		log.Println("No .env file found")
+		os.Exit(1)
+	}
+	if err := environment.Validate(); err != nil {
+		log.Println(err.Error())
+		os.Exit(1)
+	}
 
 	e.Static("/css", "static/css")
 
@@ -19,7 +33,7 @@ func main() {
 
 	// Database config
 	// Init job to connect to db
-	go db.CheckDBConnection()
+	go database.CheckDBConnection()
 
 	// Middleware stack
 	e.Use(middleware.CORS())

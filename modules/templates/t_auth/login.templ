@@ -1,0 +1,18 @@
+package t_auth
+
+templ Login(){
+    <div class="flex flex-col h-full w-full items-center justify-center">
+        <form hx-post="login" class="flex flex-col bg-green-300 p-8">
+            <h1>Login</h1>
+            <div class="flex justify-between">
+                <span>Email</span>
+                <input required class="border-black border-2" type="text" id="email">
+            </div>
+            <div class="flex justify-between">
+                <span>Password</span>
+                <input required class="border-black border-2" type="password" id="password">
+            </div>
+            <button type="submit">Login</button>
+        </form>
+    </div>
+}

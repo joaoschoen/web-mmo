@@ -1,18 +1,17 @@
-package templates
+package t_base
 
-import "web-mmo/modules/templates/base"
-import "web-mmo/modules/templates/ui"
+import "web-mmo/modules/templates/t_ui"
 
-templ Base(page templ.Component,path string){
+templ GameBase(page templ.Component,path string){
     <!DOCTYPE html>
     <html lang="en">
-    @base.Head()
+    @Head()
     <body class="flex flex-col items-center font-mono">
-        <div class="bg-green-300">
-            <h1>Welcome to the world of Grunlah</h1>
+        <div class="h-20">
+            <h1 class="bg-green-300">Welcome to the world of Grunlah</h1>
         </div>
         <div>
-            @ui.Menu(path)
+            @t_ui.Menu(path)
         </div>
         <div class="bg-black h-[2px] w-full" ></div>
         <div id="page" class="flex flex-col items-center w-full">

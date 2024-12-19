@@ -1,9 +1,10 @@
-package db
+package database
 
 import (
 	"context"
 	"database/sql"
 	"log"
+	"os"
 	"time"
 
 	_ "github.com/lib/pq"
@@ -11,11 +12,12 @@ import (
 
 var dbConn *sql.DB
 
-// TODO REMOVE THIS
-// const conn_string string = "host=localhost port=5432 database='web-mmo' user='admin' password='admin' pool_min_conns=5 pool_max_conns=20 pool_max_conn_lifetime=15s ssl=false"
-const conn_string string = "postgres://admin:admin@localhost:5432/web-mmo?sslmode=disable"
-
 func InitDB() error {
+	conn_string := os.Getenv("DATABASE_URL")
+	if conn_string == "" {
+		log.Fatalf("Couldn't load DATABASE_URL environment variable properly")
+	}
+
 	var err error
 	dbConn, err = sql.Open("postgres", conn_string)
 

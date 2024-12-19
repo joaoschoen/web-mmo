@@ -1,6 +1,10 @@
-package ui
+package t_ui
 
 templ Menu(path string){
+    <div class="bg-green-300">
+        <h1>Welcome to the world of Grunlah</h1>
+    </div>
+    <div class="bg-black h-[2px] w-full" ></div>
     <nav class="flex w-full m-2 gap-10">
         @MenuItem(path,templ.SafeURL("/world"),"World Map")
         @MenuItem(path,templ.SafeURL("/hero"),"Hero")
